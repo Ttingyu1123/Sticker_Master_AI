@@ -31,6 +31,7 @@ export const processImage = async (
         console.log("AI Model Assets Path:", fullUrl); // Debugging log
         const blob = await removeBackground(image, {
             publicPath: fullUrl,
+            model: 'medium' as any, // Explicitly use 'medium' (exists in data v1.4.5) despite v1.7.0 types defaulting to isnet
             progress: (key, current, total) => {
                 if (onProgress) {
                     onProgress(current / total);
