@@ -226,7 +226,7 @@ is-buffer/index.js:
    * @author   Feross Aboukhadijeh <https://feross.org>
    * @license  MIT
    *)
-*/const wb=()=>{{const u=new URL(window.location.href);return u.pathname.endsWith("index.html")&&(u.pathname=u.pathname.slice(0,-10)),u.pathname.endsWith("/")||(u.pathname+="/"),u.href}},Sb=wb(),Ab=async(u,l)=>{try{const s=`${Sb}imgly-data/`;return console.log("AI Model Assets Path:",s),await xb(u,{publicPath:s,progress:(f,c,h)=>{l&&l(c/h)}})}catch(s){throw console.error("Background removal failed:",s),s}};function ps(u){throw new Error('Could not dynamically require "'+u+'". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.')}var ec={exports:{}};/*!
+*/const wb=()=>{{const u=new URL(window.location.href);return u.pathname.endsWith("index.html")&&(u.pathname=u.pathname.slice(0,-10)),u.pathname.endsWith("/")||(u.pathname+="/"),u.href}},Sb=wb(),Ab=async(u,l)=>{try{const s=`${Sb}imgly-data/`;return console.log("AI Model Assets Path:",s),await xb(u,{publicPath:s,model:"medium",progress:(f,c,h)=>{l&&l(c/h)}})}catch(s){throw console.error("Background removal failed:",s),s}};function ps(u){throw new Error('Could not dynamically require "'+u+'". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.')}var ec={exports:{}};/*!
 
 JSZip v3.10.1 - A JavaScript class for generating and reading zip files
 <http://stuartk.com/jszip>
