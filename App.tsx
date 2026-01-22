@@ -1,13 +1,13 @@
 
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { 
+import {
   Upload, Scissors, Layers, Download, RefreshCw, AlertCircle, Image as ImageIcon,
   CheckCircle2, ChevronRight, Info, FileArchive, LayoutGrid, Maximize2, Crop,
   Settings2, Type, ShieldCheck, Plus, Move, Search, Ruler, Sparkles, Sun, Palette,
   Wand2, Timer, Smartphone, ZoomIn, ZoomOut, RotateCcw, Undo2, Redo2, MousePointer2,
-  Trash2, Files, FileImage, Settings, Star, Sparkle, Minimize2, Check
+  Trash2, Files, FileImage, Settings, Star, Sparkle, Minimize2, Check, Minus
 } from 'lucide-react';
-import { removeBackground } from "@imgly/background-removal";
+import { processImage } from './services/ai/backgroundRemoval';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 import { ProcessingStatus, SplitConfig, ExportPreset, OutputFormat } from './types';
@@ -24,7 +24,7 @@ interface TileInfo {
   url: string;
   width: number;
   height: number;
-  image?: HTMLImageElement; 
+  image?: HTMLImageElement;
 }
 
 interface HistoryState {
@@ -38,8 +38,39 @@ interface FileItem {
   preview: string;
   stats?: ImageStats;
   isProcessed?: boolean;
-  baseTiles?: TileInfo[]; 
+  baseTiles?: TileInfo[];
 }
+
+const Stepper = ({ label, value, min, max, onChange }: { label: string, value: number, min: number, max: number, onChange: (val: number) => void }) => (
+  <div className="space-y-1">
+    <label className="text-[10px] font-bold text-gray-400 uppercase">{label}</label>
+    <div className="flex items-center bg-slate-50 border rounded-xl overflow-hidden">
+      <button
+        onClick={() => onChange(Math.max(min, value - 1))}
+        className="p-3 text-gray-500 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+        disabled={value <= min}
+      >
+        <Minus size={14} />
+      </button>
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => {
+          const val = parseInt(e.target.value);
+          if (!isNaN(val)) onChange(Math.min(max, Math.max(min, val)));
+        }}
+        className="w-full py-2 text-center bg-transparent font-bold text-sm outline-none appearance-none"
+      />
+      <button
+        onClick={() => onChange(Math.min(max, value + 1))}
+        className="p-3 text-gray-500 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+        disabled={value >= max}
+      >
+        <Plus size={14} />
+      </button>
+    </div>
+  </div>
+);
 
 const App: React.FC = () => {
   const [fileQueue, setFileQueue] = useState<FileItem[]>([]);
@@ -60,7 +91,7 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryState[]>([]);
   const [historyIdx, setHistoryIdx] = useState(-1);
   const [isPanning, setIsPanning] = useState(false);
-  
+
   const [config, setConfig] = useState<SplitConfig>({
     rows: 2,
     cols: 2,
@@ -265,11 +296,12 @@ const App: React.FC = () => {
       for (let fIdx = 0; fIdx < newQueue.length; fIdx++) {
         const item = newQueue[fIdx];
         setStatusMsg(`正在執行核心處理 (${fIdx + 1}/${newQueue.length}): ${item.file.name}`);
-        
+
         let activeBlob: Blob | string = item.file;
         if (config.useAI) {
-          activeBlob = await removeBackground(item.file, { 
-            progress: (k, c, t) => setProgress(Math.round(((fIdx + (c / t)) / newQueue.length) * 100))
+          activeBlob = await processImage(item.file, (p) => {
+            // Calculate total progress: current file index + current file progress / total files
+            setProgress(Math.round(((fIdx + p) / newQueue.length) * 100));
           });
         }
 
@@ -280,8 +312,8 @@ const App: React.FC = () => {
         for (let y = 0; y < config.rowLines.length - 1; y++) {
           for (let x = 0; x < config.colLines.length - 1; x++) {
             const sx = config.colLines[x] * img.width, sy = config.rowLines[y] * img.height;
-            const sw = Math.max(1, (config.colLines[x+1] - config.colLines[x]) * img.width);
-            const sh = Math.max(1, (config.rowLines[y+1] - config.rowLines[y]) * img.height);
+            const sw = Math.max(1, (config.colLines[x + 1] - config.colLines[x]) * img.width);
+            const sh = Math.max(1, (config.rowLines[y + 1] - config.rowLines[y]) * img.height);
             const canvas = document.createElement('canvas');
             canvas.width = Math.round(sw * config.scaleFactor);
             canvas.height = Math.round(sh * config.scaleFactor);
@@ -327,7 +359,7 @@ const App: React.FC = () => {
           const canvas = document.createElement('canvas');
           canvas.width = finalW; canvas.height = finalH;
           const ctx = canvas.getContext('2d')!;
-          
+
           const safeW = finalW * (1 - config.margin * 2), safeH = finalH * (1 - config.margin * 2);
           const scale = Math.min(safeW / base.width, safeH / base.height, 100);
           const dw = base.width * scale, dh = base.height * scale;
@@ -351,11 +383,11 @@ const App: React.FC = () => {
             ctx.drawImage(sCanvas, 0, 0);
           }
           ctx.drawImage(base.image!, dx, dy, dw, dh);
-          
+
           const finalBlob = await new Promise<Blob | null>(r => canvas.toBlob(r, mimeType, 0.92));
           if (finalBlob) {
             const folder = fileQueue.length > 1 ? `${item.file.name.split('.')[0]}/` : '';
-            const name = `${config.filenamePrefix}_${Math.floor(i/(config.colLines.length-1))+1}_${(i%(config.colLines.length-1))+1}.${extension}`;
+            const name = `${config.filenamePrefix}_${Math.floor(i / (config.colLines.length - 1)) + 1}_${(i % (config.colLines.length - 1)) + 1}.${extension}`;
             zip.file(`${folder}${name}`, finalBlob);
             if (item.id === activeFileId) newProcessedTiles.push({ url: URL.createObjectURL(finalBlob), width: finalW, height: finalH });
           }
@@ -373,7 +405,7 @@ const App: React.FC = () => {
     if (!activeFile?.stats) return null;
     if (config.preset === 'line') return { w: 370, h: 320, label: 'LINE 規格' };
     if (config.preset === 'telegram') return { w: 512, h: 512, label: 'Telegram 規格' };
-    return { w: Math.round((config.colLines[1]-config.colLines[0])*activeFile.stats.width*config.scaleFactor), h: Math.round((config.rowLines[1]-config.rowLines[0])*activeFile.stats.height*config.scaleFactor), label: '輸出尺寸' };
+    return { w: Math.round((config.colLines[1] - config.colLines[0]) * activeFile.stats.width * config.scaleFactor), h: Math.round((config.rowLines[1] - config.rowLines[0]) * activeFile.stats.height * config.scaleFactor), label: '輸出尺寸' };
   }, [activeFile, config.colLines, config.rowLines, config.scaleFactor, config.preset]);
 
   return (
@@ -389,8 +421,8 @@ const App: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <div className="flex bg-gray-100 p-1 rounded-xl">
-              <button onClick={undo} disabled={historyIdx <= 0} className="p-1.5 hover:bg-white rounded-lg disabled:opacity-30 text-gray-600 transition-all"><Undo2 size={16}/></button>
-              <button onClick={redo} disabled={historyIdx >= history.length - 1} className="p-1.5 hover:bg-white rounded-lg disabled:opacity-30 text-gray-600 transition-all"><Redo2 size={16}/></button>
+              <button onClick={undo} disabled={historyIdx <= 0} className="p-1.5 hover:bg-white rounded-lg disabled:opacity-30 text-gray-600 transition-all"><Undo2 size={16} /></button>
+              <button onClick={redo} disabled={historyIdx >= history.length - 1} className="p-1.5 hover:bg-white rounded-lg disabled:opacity-30 text-gray-600 transition-all"><Redo2 size={16} /></button>
             </div>
             <button onClick={reset} className="px-3 py-1.5 bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-600 rounded-lg text-xs font-bold transition-all flex items-center gap-1"><RefreshCw size={14} /> 重置</button>
           </div>
@@ -400,7 +432,7 @@ const App: React.FC = () => {
       <main className="max-w-7xl mx-auto px-6 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           {fileQueue.length === 0 ? (
-            <div onDragOver={(e) => {e.preventDefault(); setIsDragging(true);}} onDragLeave={() => setIsDragging(false)} onDrop={(e) => {e.preventDefault(); setIsDragging(false); if(e.dataTransfer.files) handleFiles(e.dataTransfer.files);}} onClick={() => fileInputRef.current?.click()} className={`group border-4 border-dashed rounded-3xl p-20 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-h-[500px] ${isDragging ? 'drag-active' : 'border-gray-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/20'}`}>
+            <div onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files) handleFiles(e.dataTransfer.files); }} onClick={() => fileInputRef.current?.click()} className={`group border-4 border-dashed rounded-3xl p-20 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-h-[500px] ${isDragging ? 'drag-active' : 'border-gray-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/20'}`}>
               <input ref={fileInputRef} type="file" multiple className="hidden" onChange={(e) => e.target.files && handleFiles(e.target.files)} accept="image/*" />
               <div className="bg-indigo-50 p-8 rounded-full group-hover:scale-110 transition-transform shadow-inner text-indigo-600"><Upload size={48} /></div>
               <h3 className="mt-8 text-2xl font-bold text-gray-700">批次拖曳圖片至此</h3>
@@ -436,9 +468,9 @@ const App: React.FC = () => {
                 <div className="relative rounded-2xl border min-h-[500px] bg-slate-100 overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing shadow-inner" onWheel={handleWheel} onMouseDown={startPan} onMouseMove={onPan} onMouseUp={() => setIsPanning(false)}>
                   <div className="absolute top-4 left-4 z-40 flex flex-col gap-2">
                     <div className="bg-white/90 backdrop-blur-md p-1 rounded-xl shadow-lg border border-white flex flex-col gap-1">
-                      <button onClick={() => setZoom(prev => Math.min(5, prev + 0.25))} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"><ZoomIn size={16}/></button>
-                      <button onClick={() => setZoom(prev => Math.max(0.5, prev - 0.25))} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"><ZoomOut size={16}/></button>
-                      <button onClick={() => { setZoom(1); setPan({x:0, y:0}); }} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"><RotateCcw size={16}/></button>
+                      <button onClick={() => setZoom(prev => Math.min(5, prev + 0.25))} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"><ZoomIn size={16} /></button>
+                      <button onClick={() => setZoom(prev => Math.max(0.5, prev - 0.25))} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"><ZoomOut size={16} /></button>
+                      <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors"><RotateCcw size={16} /></button>
                     </div>
                     {viewMode === 'original' && activeFile && (
                       <button onClick={autoDetectGrid} className="bg-indigo-600 text-white p-2.5 rounded-xl shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2 group overflow-hidden max-w-[42px] hover:max-w-[150px]">
@@ -462,13 +494,13 @@ const App: React.FC = () => {
                       ))}
                       {Array.from({ length: (config.rowLines.length - 1) * (config.colLines.length - 1) }).map((_, i) => {
                         const r = Math.floor(i / (config.colLines.length - 1)), c = i % (config.colLines.length - 1);
-                        return <div key={i} className="absolute border border-white/20 bg-indigo-500/10 pointer-events-none flex items-center justify-center overflow-hidden" style={{ top: `${config.rowLines[r] * 100}%`, left: `${config.colLines[c] * 100}%`, width: `${(config.colLines[c+1] - config.colLines[c]) * 100}%`, height: `${(config.rowLines[r+1] - config.rowLines[r]) * 100}%` }}>
-                          <span className="text-[10px] font-black text-white bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">#{r+1}-{c+1}</span>
+                        return <div key={i} className="absolute border border-white/20 bg-indigo-500/10 pointer-events-none flex items-center justify-center overflow-hidden" style={{ top: `${config.rowLines[r] * 100}%`, left: `${config.colLines[c] * 100}%`, width: `${(config.colLines[c + 1] - config.colLines[c]) * 100}%`, height: `${(config.rowLines[r + 1] - config.rowLines[r]) * 100}%` }}>
+                          <span className="text-[10px] font-black text-white bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">#{r + 1}-{c + 1}</span>
                         </div>
                       })}
                     </div>
                   ) : (
-                    <div className={`w-full h-full flex flex-col items-center justify-center relative ${getHelperBgClass()}`} style={{ transform: `scale(${zoom}) translate(${pan.x/zoom}px, ${pan.y/zoom}px)`, ...(helperBg === 'checkerboard' ? { backgroundImage: 'conic-gradient(#eee 90deg,#fff 90deg 180deg,#eee 180deg 270deg,#fff 270deg)', backgroundSize: '16px 16px' } : {}) }}>
+                    <div className={`w-full h-full flex flex-col items-center justify-center relative ${getHelperBgClass()}`} style={{ transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`, ...(helperBg === 'checkerboard' ? { backgroundImage: 'conic-gradient(#eee 90deg,#fff 90deg 180deg,#eee 180deg 270deg,#fff 270deg)', backgroundSize: '16px 16px' } : {}) }}>
                       <div className="grid p-10 gap-10 w-full max-h-[90%] overflow-y-auto" style={{ gridTemplateRows: `repeat(${config.rowLines.length - 1}, 1fr)`, gridTemplateColumns: `repeat(${config.colLines.length - 1}, 1fr)` }}>
                         {processedTiles.map((tile, i) => (
                           <div key={i} className="flex flex-col items-center gap-2 animate-in zoom-in-90 duration-300">
@@ -482,7 +514,7 @@ const App: React.FC = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex justify-center gap-3 mt-4">
                   {(['checkerboard', 'white', 'black', 'green'] as const).map(bg => (
                     <button key={bg} onClick={() => setHelperBg(bg)} className={`w-6 h-6 rounded-full border-2 transition-all ${helperBg === bg ? 'border-indigo-600 scale-125 ring-2 ring-indigo-100' : 'border-white'} ${bg === 'checkerboard' ? 'bg-slate-200' : bg === 'green' ? 'bg-[#00ff00]' : bg === 'black' ? 'bg-black' : 'bg-white'}`} />
@@ -511,41 +543,41 @@ const App: React.FC = () => {
           )}
 
           <section className="bg-white rounded-3xl border shadow-sm p-6 space-y-5">
-            <div className="flex items-center justify-between"><h2 className="text-sm font-black flex items-center gap-2 text-gray-700 uppercase tracking-wider"><Layers size={16} className="text-indigo-600"/> 階段一：裁切與去背</h2><span className="bg-indigo-50 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-indigo-100">{fileQueue.length} 張隊列中</span></div>
+            <div className="flex items-center justify-between"><h2 className="text-sm font-black flex items-center gap-2 text-gray-700 uppercase tracking-wider"><Layers size={16} className="text-indigo-600" /> 階段一：裁切與去背</h2><span className="bg-indigo-50 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-indigo-100">{fileQueue.length} 張隊列中</span></div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">橫列 Rows</label><input type="number" min="1" max="12" value={config.rows} onChange={(e) => setConfig(prev => ({ ...prev, rows: parseInt(e.target.value) || 1, manualMode: false }))} className="w-full px-4 py-2 bg-slate-50 border rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-100 transition-all" /></div>
-              <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">直欄 Cols</label><input type="number" min="1" max="12" value={config.cols} onChange={(e) => setConfig(prev => ({ ...prev, cols: parseInt(e.target.value) || 1, manualMode: false }))} className="w-full px-4 py-2 bg-slate-50 border rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-100 transition-all" /></div>
+              <Stepper label="橫列 Rows" value={config.rows} min={1} max={12} onChange={(val) => setConfig(prev => ({ ...prev, rows: val, manualMode: false }))} />
+              <Stepper label="直欄 Cols" value={config.cols} min={1} max={12} onChange={(val) => setConfig(prev => ({ ...prev, cols: val, manualMode: false }))} />
             </div>
             <div className="space-y-2 pt-1">
-              <div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1"><Maximize2 size={10}/> 輸出解析度放大</label><span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">{config.scaleFactor}x</span></div>
+              <div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1"><Maximize2 size={10} /> 輸出解析度放大</label><span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">{config.scaleFactor}x</span></div>
               <input type="range" min="1" max="4" step="0.5" value={config.scaleFactor} onChange={(e) => setConfig(prev => ({ ...prev, scaleFactor: parseFloat(e.target.value) }))} className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
             </div>
             <div onClick={() => setConfig(prev => ({ ...prev, manualMode: !prev.manualMode }))} className={`flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${config.manualMode ? 'bg-amber-50 border-amber-300 shadow-md' : 'bg-white border-slate-100'}`}><div className="flex items-center gap-3"><Move size={18} className={config.manualMode ? 'text-amber-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">啟用手動對齊模式</span></div><div className={`w-9 h-5 rounded-full relative transition-colors ${config.manualMode ? 'bg-amber-500' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.manualMode ? 'right-1' : 'left-1'}`} /></div></div>
             {estimatedSize && <div className="p-3.5 bg-indigo-50/50 border border-indigo-100 rounded-2xl flex items-center gap-3 shadow-sm"><Ruler size={18} className="text-indigo-600 shrink-0" /><div className="flex flex-col"><span className="text-[9px] font-black text-indigo-400 uppercase leading-none mb-1">{estimatedSize.label}</span><span className="text-sm font-black text-indigo-700">{estimatedSize.w} × {estimatedSize.h} <span className="text-[10px] opacity-60 font-medium">px</span></span></div></div>}
             <div onClick={() => setConfig(prev => ({ ...prev, useAI: !prev.useAI }))} className={`flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${config.useAI ? 'bg-indigo-50 border-indigo-200 shadow-md' : 'bg-white border-slate-100'}`}><div className="flex items-center gap-3"><ImageIcon size={18} className={config.useAI ? 'text-indigo-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">自動 AI 智慧去背</span></div><div className={`w-9 h-5 rounded-full relative transition-colors ${config.useAI ? 'bg-indigo-500' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useAI ? 'right-1' : 'left-1'}`} /></div></div>
             {config.useAI && (
-               <div className="border rounded-2xl overflow-hidden bg-slate-50 shadow-inner">
-                  <button onClick={() => setShowAdvancedAI(!showAdvancedAI)} className="w-full flex items-center justify-between p-3.5 text-xs font-bold text-gray-500 hover:bg-slate-100 transition-colors"><div className="flex items-center gap-2"><Settings2 size={15}/> 進階去背設定</div><ChevronRight size={15} className={`transition-transform ${showAdvancedAI ? 'rotate-90' : ''}`} /></button>
-                  {showAdvancedAI && <div className="p-4 space-y-4 animate-in slide-in-from-top-2"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase">邊緣容差</label><span className="text-[10px] font-black text-indigo-600">{config.tolerance}</span></div><input type="range" min="0" max="100" value={config.tolerance} onChange={(e) => setConfig(prev => ({ ...prev, tolerance: parseInt(e.target.value) }))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-indigo-600" /></div><div className="grid grid-cols-2 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, protectInternal: !prev.protectInternal }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.protectInternal ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-500'}`}><ShieldCheck size={12} /> 保護封閉區</button><button onClick={() => setConfig(prev => ({ ...prev, retainText: !prev.retainText }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.retainText ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-500'}`}><Type size={12} /> 增強文字</button></div></div>}
-               </div>
+              <div className="border rounded-2xl overflow-hidden bg-slate-50 shadow-inner">
+                <button onClick={() => setShowAdvancedAI(!showAdvancedAI)} className="w-full flex items-center justify-between p-3.5 text-xs font-bold text-gray-500 hover:bg-slate-100 transition-colors"><div className="flex items-center gap-2"><Settings2 size={15} /> 進階去背設定</div><ChevronRight size={15} className={`transition-transform ${showAdvancedAI ? 'rotate-90' : ''}`} /></button>
+                {showAdvancedAI && <div className="p-4 space-y-4 animate-in slide-in-from-top-2"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase">邊緣容差</label><span className="text-[10px] font-black text-indigo-600">{config.tolerance}</span></div><input type="range" min="0" max="100" value={config.tolerance} onChange={(e) => setConfig(prev => ({ ...prev, tolerance: parseInt(e.target.value) }))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-indigo-600" /></div><div className="grid grid-cols-2 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, protectInternal: !prev.protectInternal }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.protectInternal ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-500'}`}><ShieldCheck size={12} /> 保護封閉區</button><button onClick={() => setConfig(prev => ({ ...prev, retainText: !prev.retainText }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.retainText ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-500'}`}><Type size={12} /> 增強文字</button></div></div>}
+              </div>
             )}
             <button onClick={performCoreProcess} disabled={fileQueue.length === 0 || status === 'splitting' || status === 'removing_bg'} className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 transition-all active:scale-95"><Wand2 size={22} /> 執行核心處理 ({fileQueue.length} 張圖)</button>
           </section>
 
           <section className={`bg-white rounded-3xl border shadow-sm p-6 space-y-5 transition-all ${!isCoreProcessed ? 'opacity-50 pointer-events-none grayscale' : 'opacity-100'}`}>
-            <h2 className="text-sm font-black flex items-center gap-2 text-gray-700 uppercase tracking-wider"><Star size={16} className="text-purple-600"/> 階段二：美化加工與輸出</h2>
+            <h2 className="text-sm font-black flex items-center gap-2 text-gray-700 uppercase tracking-wider"><Star size={16} className="text-purple-600" /> 階段二：美化加工與輸出</h2>
             <div className="space-y-2"><label className="text-[10px] font-bold text-gray-400 uppercase">常用預設規格 (Presets)</label><div className="grid grid-cols-3 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, preset: 'none' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'none' ? 'bg-purple-600 text-white border-purple-600 shadow-md' : 'bg-white text-gray-500 hover:border-purple-200'}`}>自訂比例</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'line' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'line' ? 'bg-green-600 text-white border-green-600 shadow-md' : 'bg-white text-gray-500 hover:border-green-200'}`}>Line (320px)</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'telegram' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'telegram' ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-gray-500 hover:border-blue-200'}`}>Telegram</button></div></div>
-            <div className="space-y-2 pt-1"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase">留白間距 {Math.round(config.margin*100)}%</label></div><input type="range" min="0" max="0.3" step="0.01" value={config.margin} onChange={(e) => setConfig(prev => ({ ...prev, margin: parseFloat(e.target.value) }))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-purple-600" /></div>
-            
+            <div className="space-y-2 pt-1"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase">留白間距 {Math.round(config.margin * 100)}%</label></div><input type="range" min="0" max="0.3" step="0.01" value={config.margin} onChange={(e) => setConfig(prev => ({ ...prev, margin: parseFloat(e.target.value) }))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-purple-600" /></div>
+
             <div className="flex items-center justify-between pt-2 border-t border-slate-50"><div className="flex items-center gap-3"><Palette size={18} className={config.useStroke ? 'text-purple-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">物件白色描邊 (Stroke)</span></div><div onClick={() => setConfig(prev => ({ ...prev, useStroke: !prev.useStroke }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useStroke ? 'bg-purple-600' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useStroke ? 'right-1' : 'left-1'}`} /></div></div>
             {config.useStroke && <div className="pl-9 space-y-4 animate-in slide-in-from-left-4"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[9px] font-bold text-gray-400 uppercase">描邊粗細</label><span className="text-[9px] font-black text-purple-600">{config.strokeThickness}px</span></div><input type="range" min="1" max="25" value={config.strokeThickness} onChange={(e) => setConfig(prev => ({ ...prev, strokeThickness: parseInt(e.target.value) }))} className="w-full h-1 bg-purple-100 rounded-lg accent-purple-600" /></div><div className="flex items-center gap-3"><label className="text-[9px] font-bold text-gray-400 uppercase">描邊顏色</label><div className="flex gap-2">{(['#ffffff', '#000000', '#facc15', '#f87171', '#818cf8']).map(c => (<button key={c} onClick={() => setConfig(prev => ({ ...prev, strokeColor: c }))} className={`w-5 h-5 rounded-full border border-slate-200 shadow-sm transition-transform ${config.strokeColor === c ? 'scale-125 ring-2 ring-purple-200' : ''}`} style={{ backgroundColor: c }} />))}<input type="color" value={config.strokeColor} onChange={(e) => setConfig(prev => ({ ...prev, strokeColor: e.target.value }))} className="w-5 h-5 p-0 border-0 bg-transparent cursor-pointer" /></div></div></div>}
-            
+
             <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Sun size={18} className={config.useShadow ? 'text-indigo-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">物件陰影 (Shadow)</span></div><div onClick={() => setConfig(prev => ({ ...prev, useShadow: !prev.useShadow }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useShadow ? 'bg-indigo-600' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useShadow ? 'right-1' : 'left-1'}`} /></div></div>
             <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Sparkle size={18} className={config.useFeathering ? 'text-teal-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">邊緣柔和羽化 (Feathering)</span></div><div onClick={() => setConfig(prev => ({ ...prev, useFeathering: !prev.useFeathering }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useFeathering ? 'bg-teal-600' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useFeathering ? 'right-1' : 'left-1'}`} /></div></div>
-            
+
             <div className="grid grid-cols-2 gap-3 pt-2">
-               <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">輸出格式</label><select value={config.outputFormat} onChange={(e) => setConfig(prev => ({ ...prev, outputFormat: e.target.value as any }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner"><option value="png">PNG (透明)</option><option value="webp">WebP (輕量)</option></select></div>
-               <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">檔名前綴</label><input type="text" value={config.filenamePrefix} onChange={(e) => setConfig(prev => ({ ...prev, filenamePrefix: e.target.value }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner" /></div>
+              <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">輸出格式</label><select value={config.outputFormat} onChange={(e) => setConfig(prev => ({ ...prev, outputFormat: e.target.value as any }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner"><option value="png">PNG (透明)</option><option value="webp">WebP (輕量)</option></select></div>
+              <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">檔名前綴</label><input type="text" value={config.filenamePrefix} onChange={(e) => setConfig(prev => ({ ...prev, filenamePrefix: e.target.value }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner" /></div>
             </div>
             <button onClick={applyBeautification} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-purple-100 transition-all active:scale-95"><Sparkle size={22} /> 套用美化並預覽結果</button>
             {zipBlob && <button onClick={() => saveAs(zipBlob, `${config.filenamePrefix}_batch_${Date.now()}.zip`)} className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-green-100 active:scale-95 animate-in zoom-in-95"><FileArchive size={22} /> 下載全部成果 ZIP</button>}
