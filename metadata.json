@@ -1,0 +1,8 @@
+
+{
+  "name": "StickerMaster AI：專業級貼圖批次製作與智慧去背裁切大師",
+  "description": "專業級本地 AI 去背與智慧圖片均分工具，專為貼圖製作與教材設計打造，具備兩階段美化處理流程。",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
