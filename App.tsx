@@ -483,12 +483,12 @@ const App: React.FC = () => {
                     <div ref={actualImageContainerRef} className="relative origin-center shadow-2xl transition-transform duration-75" style={{ aspectRatio: activeFile?.stats ? `${activeFile.stats.width} / ${activeFile.stats.height}` : 'auto', transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, maxHeight: '600px', maxWidth: '100%' }}>
                       {activeFile && <img src={activeFile.preview} alt="Preview" className="w-full h-full block select-none pointer-events-none" />}
                       {config.rowLines.map((line, idx) => idx !== 0 && idx !== config.rowLines.length - 1 && (
-                        <div key={idx} className={`absolute w-full h-1 left-0 z-20 group ${config.manualMode ? 'cursor-row-resize' : 'pointer-events-none'}`} style={{ top: `${line * 100}%` }} onMouseDown={(e) => handleLineDrag('row', idx, e)}>
+                        <div key={idx} className={`absolute w-full h-1 left-0 z-20 group ${config.manualMode ? 'cursor-row-resize' : 'pointer-events-none'}`} style={{ top: `${line * 100}%` }} onMouseDown={(e) => handleLineDrag('row', idx, e)} onTouchStart={(e) => handleLineDrag('row', idx, e)}>
                           <div className={`w-full h-full border-t-2 border-dashed ${config.manualMode ? 'border-amber-500 shadow-sm' : 'border-white/60'}`} />
                         </div>
                       ))}
                       {config.colLines.map((line, idx) => idx !== 0 && idx !== config.colLines.length - 1 && (
-                        <div key={idx} className={`absolute h-full w-1 top-0 z-20 group ${config.manualMode ? 'cursor-col-resize' : 'pointer-events-none'}`} style={{ left: `${line * 100}%` }} onMouseDown={(e) => handleLineDrag('col', idx, e)}>
+                        <div key={idx} className={`absolute h-full w-1 top-0 z-20 group ${config.manualMode ? 'cursor-col-resize' : 'pointer-events-none'}`} style={{ left: `${line * 100}%` }} onMouseDown={(e) => handleLineDrag('col', idx, e)} onTouchStart={(e) => handleLineDrag('col', idx, e)}>
                           <div className={`h-full w-full border-l-2 border-dashed ${config.manualMode ? 'border-amber-500 shadow-sm' : 'border-white/60'}`} />
                         </div>
                       ))}
