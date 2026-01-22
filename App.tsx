@@ -7,7 +7,7 @@ import {
   Wand2, Timer, Smartphone, ZoomIn, ZoomOut, RotateCcw, Undo2, Redo2, MousePointer2,
   Trash2, Files, FileImage, Settings, Star, Sparkle, Minimize2, Check, Minus
 } from 'lucide-react';
-import { processImage } from './services/ai/backgroundRemoval';
+import { processImage } from './src/services/ai/backgroundRemoval';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 import { ProcessingStatus, SplitConfig, ExportPreset, OutputFormat } from './types';
