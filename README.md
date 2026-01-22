@@ -1,20 +1,56 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# StickerMaster AI：專業級貼圖批次製作與智慧去背裁切大師
 
-# Run and deploy your AI Studio app
+專業級的 AI 貼圖製作工具，提供批次處理與智慧去背功能。
 
-This contains everything you need to run your app locally.
+## 📋 前置需求
 
-View your app in AI Studio: https://ai.studio/apps/drive/1Wi7E-N7RQhRmB6u57GDcOe63GTPmlkEo
+在此專案開始之前，請確保您的環境已安裝以下工具：
 
-## Run Locally
+- [Node.js](https://nodejs.org/) (建議 v18 或以上版本)
+- [Git](https://git-scm.com/)
 
-**Prerequisites:**  Node.js
+## 🚀 安裝說明
 
+1. **複製專案**
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```bash
+   git clone <repository_url>
+   cd Sticker_Master_AI
+   ```
+
+2. **安裝套件**
+
+   ```bash
+   npm install
+   ```
+
+3. **啟動開發伺服器**
+
+   ```bash
+   npm run dev
+   ```
+
+   啟動後，請在瀏覽器開啟顯示的網址 (預設為 `http://localhost:3000`)。
+
+## 🛠️ 開發與指令
+
+- `npm run dev`: 啟動開發伺服器
+- `npm run build`: 建置生產環境版本 (檔案位於 `dist` 資料夾)
+- `npm run preview`: 預覽建置後的版本
+
+## 📦 部署 (GitHub Pages)
+
+本專案已設定 GitHub Actions 自動部署流程。
+
+1. 將程式碼推送到 GitHub 的 `main` 或 `master` 分支。
+2. GitHub Actions 會自動執行：
+   - 安裝依賴
+   - 建置專案
+   - 將 `dist` 資料夾的內容部署到 `gh-pages` 分支
+3. 請至 GitHub Repository 的 **Settings > Pages**，確認 Source 設定為 **Deploy from a branch**，並選擇 `gh-pages` 分支。
+
+## 📝 專案結構
+
+- `.github/workflows/deploy.yml`: 自動部署設定檔
+- `src`: 原始程式碼
+- `dist`: 建置輸出目錄 (由 `npm run build` 產生)
