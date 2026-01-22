@@ -10,7 +10,7 @@
     "postinstall": "node copy-imgly-assets.js"
   },
   "dependencies": {
-    "@imgly/background-removal": "^1.7.0",
+    "@imgly/background-removal": "^1.4.5",
     "@imgly/background-removal-data": "^1.4.5",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
