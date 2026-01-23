@@ -410,26 +410,28 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-20 select-none bg-[#FAF7F5] font-sans text-[#5E503F]">
-      <nav className="glass-card border-b border-[#E6E2DE]/50 sticky top-0 z-50 px-6 py-4 shadow-sm bg-white/70 backdrop-blur-md">
+      <nav className="glass-card border-b border-[#E6E2DE]/50 sticky top-0 z-50 px-4 py-3 sm:px-6 sm:py-4 shadow-sm bg-white/70 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-[#B5838D] p-2.5 rounded-2xl text-white shadow-lg shadow-[#B5838D]/20"><Scissors size={20} /></div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="bg-[#B5838D] p-2 sm:p-2.5 rounded-2xl text-white shadow-lg shadow-[#B5838D]/20"><Scissors size={18} className="sm:w-5 sm:h-5" /></div>
             <div>
-              <h1 className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#B5838D] to-[#6D6875] tracking-tight leading-none">StickerMaster AI</h1>
-              <span className="text-[9px] font-bold text-[#9A8C98] uppercase tracking-[0.2em]">Beauty & Spa Edition</span>
+              <h1 className="text-lg sm:text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#B5838D] to-[#6D6875] tracking-tight leading-none">StickerMaster AI</h1>
+              <span className="hidden sm:block text-[9px] font-bold text-[#9A8C98] uppercase tracking-[0.2em] mt-0.5">Beauty & Spa Edition</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 mr-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2">
               <a href="https://tingyusdeco.com/" className="text-[10px] font-bold text-[#9A8C98] hover:text-[#B5838D] flex items-center gap-1 transition-colors">
                 <Home size={16} /> <span className="hidden sm:inline">Back Home</span>
               </a>
             </div>
             <div className="flex bg-[#F2EFE9] p-1 rounded-2xl border border-[#E6E2DE]">
-              <button onClick={undo} disabled={historyIdx <= 0} className="p-2 hover:bg-white rounded-xl disabled:opacity-30 text-[#6D6875] transition-all shadow-sm"><Undo2 size={16} /></button>
-              <button onClick={redo} disabled={historyIdx >= history.length - 1} className="p-2 hover:bg-white rounded-xl disabled:opacity-30 text-[#6D6875] transition-all shadow-sm"><Redo2 size={16} /></button>
+              <button onClick={undo} disabled={historyIdx <= 0} className="p-1.5 sm:p-2 hover:bg-white rounded-xl disabled:opacity-30 text-[#6D6875] transition-all shadow-sm"><Undo2 size={16} /></button>
+              <button onClick={redo} disabled={historyIdx >= history.length - 1} className="p-1.5 sm:p-2 hover:bg-white rounded-xl disabled:opacity-30 text-[#6D6875] transition-all shadow-sm"><Redo2 size={16} /></button>
             </div>
-            <button onClick={reset} className="px-4 py-2 bg-[#F2EFE9] hover:bg-[#E5989B] hover:text-white text-[#6D6875] rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm"><RefreshCw size={14} /> 重置</button>
+            <button onClick={reset} className="px-3 py-2 sm:px-4 bg-[#F2EFE9] hover:bg-[#E5989B] hover:text-white text-[#6D6875] rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+              <RefreshCw size={14} /> <span className="hidden sm:inline">重置</span>
+            </button>
           </div>
         </div>
       </nav>
