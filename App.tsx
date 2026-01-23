@@ -43,11 +43,11 @@ interface FileItem {
 
 const Stepper = ({ label, value, min, max, onChange }: { label: string, value: number, min: number, max: number, onChange: (val: number) => void }) => (
   <div className="space-y-1">
-    <label className="text-[10px] font-bold text-gray-400 uppercase">{label}</label>
-    <div className="flex items-center bg-slate-50 border rounded-xl overflow-hidden">
+    <label className="text-[10px] font-bold text-[#9A8C98] uppercase tracking-wider">{label}</label>
+    <div className="flex items-center bg-[#F2EFE9] border border-[#E6E2DE] rounded-2xl overflow-hidden shadow-sm">
       <button
         onClick={() => onChange(Math.max(min, value - 1))}
-        className="p-3 text-gray-500 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+        className="p-3 text-[#9A8C98] hover:bg-[#E6E2DE] active:bg-[#D8D4CF] transition-colors"
         disabled={value <= min}
       >
         <Minus size={14} />
@@ -132,10 +132,10 @@ const App: React.FC = () => {
   // Fix: Implemented getHelperBgClass to return the appropriate Tailwind class for the current helperBg state.
   const getHelperBgClass = () => {
     switch (helperBg) {
-      case 'green': return 'bg-[#00ff00]';
-      case 'black': return 'bg-black';
+      case 'green': return 'bg-[#B0C4B1]'; // Morandi Sage Green
+      case 'black': return 'bg-[#4A4238]'; // Warm dark brown
       case 'white': return 'bg-white';
-      case 'checkerboard': return 'bg-slate-200';
+      case 'checkerboard': return 'bg-[#F2EFE9]'; // Warm grey
       default: return '';
     }
   };
@@ -409,22 +409,22 @@ const App: React.FC = () => {
   }, [activeFile, config.colLines, config.rowLines, config.scaleFactor, config.preset]);
 
   return (
-    <div className="min-h-screen pb-20 select-none bg-slate-50">
-      <nav className="glass-card border-b sticky top-0 z-50 px-6 py-3 shadow-sm">
+    <div className="min-h-screen pb-20 select-none bg-[#FAF7F5] font-sans text-[#5E503F]">
+      <nav className="glass-card border-b border-[#E6E2DE]/50 sticky top-0 z-50 px-6 py-4 shadow-sm bg-white/70 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-2 rounded-xl text-white shadow-lg"><Scissors size={20} /></div>
+            <div className="bg-[#B5838D] p-2.5 rounded-2xl text-white shadow-lg shadow-[#B5838D]/20"><Scissors size={20} /></div>
             <div>
-              <h1 className="text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight leading-none">StickerMaster AI</h1>
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">專業批次貼圖製作</span>
+              <h1 className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#B5838D] to-[#6D6875] tracking-tight leading-none">StickerMaster AI</h1>
+              <span className="text-[9px] font-bold text-[#9A8C98] uppercase tracking-[0.2em]">Beauty & Spa Edition</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex bg-gray-100 p-1 rounded-xl">
-              <button onClick={undo} disabled={historyIdx <= 0} className="p-1.5 hover:bg-white rounded-lg disabled:opacity-30 text-gray-600 transition-all"><Undo2 size={16} /></button>
-              <button onClick={redo} disabled={historyIdx >= history.length - 1} className="p-1.5 hover:bg-white rounded-lg disabled:opacity-30 text-gray-600 transition-all"><Redo2 size={16} /></button>
+            <div className="flex bg-[#F2EFE9] p-1 rounded-2xl border border-[#E6E2DE]">
+              <button onClick={undo} disabled={historyIdx <= 0} className="p-2 hover:bg-white rounded-xl disabled:opacity-30 text-[#6D6875] transition-all shadow-sm"><Undo2 size={16} /></button>
+              <button onClick={redo} disabled={historyIdx >= history.length - 1} className="p-2 hover:bg-white rounded-xl disabled:opacity-30 text-[#6D6875] transition-all shadow-sm"><Redo2 size={16} /></button>
             </div>
-            <button onClick={reset} className="px-3 py-1.5 bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-600 rounded-lg text-xs font-bold transition-all flex items-center gap-1"><RefreshCw size={14} /> 重置</button>
+            <button onClick={reset} className="px-4 py-2 bg-[#F2EFE9] hover:bg-[#E5989B] hover:text-white text-[#6D6875] rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm"><RefreshCw size={14} /> 重置</button>
           </div>
         </div>
       </nav>
@@ -432,11 +432,11 @@ const App: React.FC = () => {
       <main className="max-w-7xl mx-auto px-6 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           {fileQueue.length === 0 ? (
-            <div onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files) handleFiles(e.dataTransfer.files); }} onClick={() => fileInputRef.current?.click()} className={`group border-4 border-dashed rounded-3xl p-20 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-h-[500px] ${isDragging ? 'drag-active' : 'border-gray-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/20'}`}>
+            <div onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files) handleFiles(e.dataTransfer.files); }} onClick={() => fileInputRef.current?.click()} className={`group border-4 border-dashed rounded-[2.5rem] p-20 flex flex-col items-center justify-center cursor-pointer transition-all duration-500 min-h-[500px] ${isDragging ? 'drag-active border-[#B5838D] bg-[#B5838D]/5' : 'border-[#E6E2DE] bg-white hover:border-[#B5838D]/50 hover:bg-[#FAF7F5]'}`}>
               <input ref={fileInputRef} type="file" multiple className="hidden" onChange={(e) => e.target.files && handleFiles(e.target.files)} accept="image/*" />
-              <div className="bg-indigo-50 p-8 rounded-full group-hover:scale-110 transition-transform shadow-inner text-indigo-600"><Upload size={48} /></div>
-              <h3 className="mt-8 text-2xl font-bold text-gray-700">批次拖曳圖片至此</h3>
-              <p className="mt-2 text-gray-400 font-medium text-sm">支援 JPG, PNG, WebP。本地運算，隱私無憂。</p>
+              <div className="bg-[#F2EFE9] p-10 rounded-full group-hover:scale-110 transition-transform duration-500 shadow-inner text-[#B5838D]"><Upload size={48} /></div>
+              <h3 className="mt-8 text-2xl font-black text-[#6D6875] tracking-tight">點擊或拖曳圖片至此</h3>
+              <p className="mt-3 text-[#9A8C98] font-bold text-sm tracking-wide">支援 JPG, PNG, WebP 格式</p>
             </div>
           ) : (
             <div className="space-y-4 animate-in fade-in duration-500">
@@ -453,14 +453,14 @@ const App: React.FC = () => {
 
               <div className="bg-white rounded-3xl shadow-sm border p-4 relative">
                 <div className="flex items-center justify-between mb-4 px-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-black text-indigo-600 uppercase tracking-widest truncate max-w-[200px]">{activeFile?.file.name}</span>
-                    <span className="text-[9px] text-gray-400 font-bold bg-gray-50 px-2 py-0.5 rounded-full">{activeFile?.stats?.label}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-black text-[#6D6875] uppercase tracking-widest truncate max-w-[200px]">{activeFile?.file.name}</span>
+                    <span className="text-[9px] text-[#9A8C98] font-bold bg-[#F2EFE9] px-3 py-1 rounded-full border border-[#E6E2DE]">{activeFile?.stats?.label}</span>
                   </div>
                   {isCoreProcessed && (
-                    <div className="flex bg-gray-100 p-1 rounded-lg">
-                      <button onClick={() => setViewMode('original')} className={`px-4 py-1.5 rounded-md text-[10px] font-bold transition-all ${viewMode === 'original' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500'}`}>編輯對位</button>
-                      <button onClick={() => setViewMode('result')} className={`px-4 py-1.5 rounded-md text-[10px] font-bold transition-all ${viewMode === 'result' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500'}`}>美化預覽</button>
+                    <div className="flex bg-[#F2EFE9] p-1 rounded-xl border border-[#E6E2DE]">
+                      <button onClick={() => setViewMode('original')} className={`px-5 py-2 rounded-lg text-[10px] font-bold transition-all ${viewMode === 'original' ? 'bg-white shadow-sm text-[#B5838D]' : 'text-[#9A8C98]'}`}>編輯對位</button>
+                      <button onClick={() => setViewMode('result')} className={`px-5 py-2 rounded-lg text-[10px] font-bold transition-all ${viewMode === 'result' ? 'bg-white shadow-sm text-[#B5838D]' : 'text-[#9A8C98]'}`}>美化預覽</button>
                     </div>
                   )}
                 </div>
@@ -527,46 +527,46 @@ const App: React.FC = () => {
 
         <div className="lg:col-span-4 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] pr-2 scrollbar-thin">
           {status !== 'idle' && (
-            <div className={`p-4 rounded-2xl border-2 transition-all shadow-lg animate-in slide-in-from-right-4 ${status === 'error' ? 'bg-red-50 border-red-100 text-red-700' : 'bg-white border-indigo-100'}`}>
+            <div className={`p-4 rounded-2xl border-2 transition-all shadow-lg animate-in slide-in-from-right-4 ${status === 'error' ? 'bg-red-50 border-red-100 text-red-700' : 'bg-white border-[#E6E2DE]'}`}>
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shadow-inner">
-                  {status === 'success' ? <CheckCircle2 size={22} className="text-green-600" /> : status === 'error' ? <AlertCircle size={22} /> : <div className="animate-spin rounded-full h-5 w-5 border-3 border-indigo-600 border-t-transparent" />}
+                <div className="p-2.5 rounded-xl bg-[#F2EFE9] text-[#6D6875] shadow-inner">
+                  {status === 'success' ? <CheckCircle2 size={22} className="text-[#B0C4B1]" /> : status === 'error' ? <AlertCircle size={22} /> : <div className="animate-spin rounded-full h-5 w-5 border-3 border-[#B5838D] border-t-transparent" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="block text-[10px] font-black uppercase tracking-tighter opacity-50">{status === 'success' ? '處理完成' : '運算中...'}</span>
-                  <p className="text-xs font-bold truncate text-slate-700">{statusMsg}</p>
+                  <span className="block text-[10px] font-black uppercase tracking-tighter opacity-50 text-[#9A8C98]">{status === 'success' ? '處理完成' : '運算中...'}</span>
+                  <p className="text-xs font-bold truncate text-[#6D6875]">{statusMsg}</p>
                 </div>
-                {elapsedTime && <div className="text-[10px] font-black px-2.5 py-1 bg-slate-100 rounded-lg text-slate-500">{elapsedTime}s</div>}
+                {elapsedTime && <div className="text-[10px] font-black px-2.5 py-1 bg-[#F2EFE9] rounded-lg text-[#9A8C98]">{elapsedTime}s</div>}
               </div>
-              {progress > 0 && progress < 100 && <div className="mt-4 h-2 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300 shadow-lg" style={{ width: `${progress}%` }} /></div>}
+              {progress > 0 && progress < 100 && <div className="mt-4 h-2 w-full bg-[#F2EFE9] rounded-full overflow-hidden shadow-inner"><div className="h-full bg-gradient-to-r from-[#B5838D] to-[#6D6875] transition-all duration-300 shadow-lg" style={{ width: `${progress}%` }} /></div>}
             </div>
           )}
 
-          <section className="bg-white rounded-3xl border shadow-sm p-6 space-y-5">
-            <div className="flex items-center justify-between"><h2 className="text-sm font-black flex items-center gap-2 text-gray-700 uppercase tracking-wider"><Layers size={16} className="text-indigo-600" /> 階段一：裁切與去背</h2><span className="bg-indigo-50 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-indigo-100">{fileQueue.length} 張隊列中</span></div>
+          <section className="bg-white rounded-[2rem] border border-[#E6E2DE] shadow-sm p-8 space-y-6">
+            <div className="flex items-center justify-between"><h2 className="text-sm font-black flex items-center gap-2 text-[#6D6875] uppercase tracking-wider"><Layers size={18} className="text-[#B5838D]" /> 階段一：裁切與去背</h2><span className="bg-[#FAF7F5] text-[#B5838D] text-[10px] font-black px-3 py-1 rounded-full border border-[#E6E2DE]">{fileQueue.length} 張隊列中</span></div>
             <div className="grid grid-cols-2 gap-3">
               <Stepper label="橫列 Rows" value={config.rows} min={1} max={12} onChange={(val) => setConfig(prev => ({ ...prev, rows: val, manualMode: false }))} />
               <Stepper label="直欄 Cols" value={config.cols} min={1} max={12} onChange={(val) => setConfig(prev => ({ ...prev, cols: val, manualMode: false }))} />
             </div>
             <div className="space-y-2 pt-1">
-              <div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1"><Maximize2 size={10} /> 輸出解析度放大</label><span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">{config.scaleFactor}x</span></div>
-              <input type="range" min="1" max="4" step="0.5" value={config.scaleFactor} onChange={(e) => setConfig(prev => ({ ...prev, scaleFactor: parseFloat(e.target.value) }))} className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+              <div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1"><Maximize2 size={10} /> 輸出解析度放大</label><span className="text-[10px] font-black text-[#B5838D] bg-[#FAF7F5] px-2.5 py-0.5 rounded-full">{config.scaleFactor}x</span></div>
+              <input type="range" min="1" max="4" step="0.5" value={config.scaleFactor} onChange={(e) => setConfig(prev => ({ ...prev, scaleFactor: parseFloat(e.target.value) }))} className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#B5838D]" />
             </div>
-            <div onClick={() => setConfig(prev => ({ ...prev, manualMode: !prev.manualMode }))} className={`flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${config.manualMode ? 'bg-amber-50 border-amber-300 shadow-md' : 'bg-white border-slate-100'}`}><div className="flex items-center gap-3"><Move size={18} className={config.manualMode ? 'text-amber-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">啟用手動對齊模式</span></div><div className={`w-9 h-5 rounded-full relative transition-colors ${config.manualMode ? 'bg-amber-500' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.manualMode ? 'right-1' : 'left-1'}`} /></div></div>
-            {estimatedSize && <div className="p-3.5 bg-indigo-50/50 border border-indigo-100 rounded-2xl flex items-center gap-3 shadow-sm"><Ruler size={18} className="text-indigo-600 shrink-0" /><div className="flex flex-col"><span className="text-[9px] font-black text-indigo-400 uppercase leading-none mb-1">{estimatedSize.label}</span><span className="text-sm font-black text-indigo-700">{estimatedSize.w} × {estimatedSize.h} <span className="text-[10px] opacity-60 font-medium">px</span></span></div></div>}
-            <div onClick={() => setConfig(prev => ({ ...prev, useAI: !prev.useAI }))} className={`flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${config.useAI ? 'bg-indigo-50 border-indigo-200 shadow-md' : 'bg-white border-slate-100'}`}><div className="flex items-center gap-3"><ImageIcon size={18} className={config.useAI ? 'text-indigo-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">自動 AI 智慧去背</span></div><div className={`w-9 h-5 rounded-full relative transition-colors ${config.useAI ? 'bg-indigo-500' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useAI ? 'right-1' : 'left-1'}`} /></div></div>
+            <div onClick={() => setConfig(prev => ({ ...prev, manualMode: !prev.manualMode }))} className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${config.manualMode ? 'bg-[#FCF5F3] border-[#E5989B] shadow-sm' : 'bg-white border-[#F2EFE9]'}`}><div className="flex items-center gap-3"><Move size={18} className={config.manualMode ? 'text-[#E5989B]' : 'text-[#C5C6C7]'} /><span className="text-xs font-bold text-[#6D6875]">啟用手動對齊模式</span></div><div className={`w-10 h-6 rounded-full relative transition-colors ${config.manualMode ? 'bg-[#E5989B]' : 'bg-[#E6E2DE]'}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${config.manualMode ? 'right-1' : 'left-1'}`} /></div></div>
+            {estimatedSize && <div className="p-3.5 bg-[#FAF7F5] border border-[#E6E2DE] rounded-2xl flex items-center gap-3 shadow-sm"><Ruler size={18} className="text-[#9A8C98] shrink-0" /><div className="flex flex-col"><span className="text-[9px] font-black text-[#B5838D] uppercase leading-none mb-1">{estimatedSize.label}</span><span className="text-sm font-black text-[#6D6875]">{estimatedSize.w} × {estimatedSize.h} <span className="text-[10px] opacity-60 font-medium">px</span></span></div></div>}
+            <div onClick={() => setConfig(prev => ({ ...prev, useAI: !prev.useAI }))} className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all ${config.useAI ? 'bg-[#F9F8F6] border-[#B5838D]/30 shadow-sm' : 'bg-white border-[#F2EFE9]'}`}><div className="flex items-center gap-3"><ImageIcon size={18} className={config.useAI ? 'text-[#B5838D]' : 'text-[#C5C6C7]'} /><span className="text-xs font-bold text-[#6D6875]">自動 AI 智慧去背</span></div><div className={`w-10 h-6 rounded-full relative transition-colors ${config.useAI ? 'bg-[#B5838D]' : 'bg-[#E6E2DE]'}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${config.useAI ? 'right-1' : 'left-1'}`} /></div></div>
             {config.useAI && (
               <div className="border rounded-2xl overflow-hidden bg-slate-50 shadow-inner">
                 <button onClick={() => setShowAdvancedAI(!showAdvancedAI)} className="w-full flex items-center justify-between p-3.5 text-xs font-bold text-gray-500 hover:bg-slate-100 transition-colors"><div className="flex items-center gap-2"><Settings2 size={15} /> 進階去背設定</div><ChevronRight size={15} className={`transition-transform ${showAdvancedAI ? 'rotate-90' : ''}`} /></button>
-                {showAdvancedAI && <div className="p-4 space-y-4 animate-in slide-in-from-top-2"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase">邊緣容差</label><span className="text-[10px] font-black text-indigo-600">{config.tolerance}</span></div><input type="range" min="0" max="100" value={config.tolerance} onChange={(e) => setConfig(prev => ({ ...prev, tolerance: parseInt(e.target.value) }))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-indigo-600" /></div><div className="grid grid-cols-2 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, protectInternal: !prev.protectInternal }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.protectInternal ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-500'}`}><ShieldCheck size={12} /> 保護封閉區</button><button onClick={() => setConfig(prev => ({ ...prev, retainText: !prev.retainText }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.retainText ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-gray-500'}`}><Type size={12} /> 增強文字</button></div></div>}
+                {showAdvancedAI && <div className="p-4 space-y-4 animate-in slide-in-from-top-2"><div className="space-y-2"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase">邊緣容差</label><span className="text-[10px] font-black text-[#B5838D]">{config.tolerance}</span></div><input type="range" min="0" max="100" value={config.tolerance} onChange={(e) => setConfig(prev => ({ ...prev, tolerance: parseInt(e.target.value) }))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-[#B5838D]" /></div><div className="grid grid-cols-2 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, protectInternal: !prev.protectInternal }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.protectInternal ? 'bg-[#B5838D] text-white shadow-md' : 'bg-white text-gray-500'}`}><ShieldCheck size={12} /> 保護封閉區</button><button onClick={() => setConfig(prev => ({ ...prev, retainText: !prev.retainText }))} className={`p-2 rounded-xl border text-[9px] font-bold flex items-center justify-center gap-2 transition-all ${config.retainText ? 'bg-[#B5838D] text-white shadow-md' : 'bg-white text-gray-500'}`}><Type size={12} /> 增強文字</button></div></div>}
               </div>
             )}
-            <button onClick={performCoreProcess} disabled={fileQueue.length === 0 || status === 'splitting' || status === 'removing_bg'} className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 transition-all active:scale-95"><Wand2 size={22} /> 執行核心處理 ({fileQueue.length} 張圖)</button>
+            <button onClick={performCoreProcess} disabled={fileQueue.length === 0 || status === 'splitting' || status === 'removing_bg'} className="w-full bg-[#B5838D] hover:bg-[#A87680] disabled:bg-[#E6E2DE] disabled:text-[#9A8C98] text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#B5838D]/20 transition-all active:scale-95"><Wand2 size={22} /> 執行核心處理 ({fileQueue.length} 張圖)</button>
           </section>
 
           <section className={`bg-white rounded-3xl border shadow-sm p-6 space-y-5 transition-all ${!isCoreProcessed ? 'opacity-50 pointer-events-none grayscale' : 'opacity-100'}`}>
             <h2 className="text-sm font-black flex items-center gap-2 text-gray-700 uppercase tracking-wider"><Star size={16} className="text-purple-600" /> 階段二：美化加工與輸出</h2>
-            <div className="space-y-2"><label className="text-[10px] font-bold text-gray-400 uppercase">常用預設規格 (Presets)</label><div className="grid grid-cols-3 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, preset: 'none' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'none' ? 'bg-purple-600 text-white border-purple-600 shadow-md' : 'bg-white text-gray-500 hover:border-purple-200'}`}>自訂比例</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'line' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'line' ? 'bg-green-600 text-white border-green-600 shadow-md' : 'bg-white text-gray-500 hover:border-green-200'}`}>Line (320px)</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'telegram' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'telegram' ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-gray-500 hover:border-blue-200'}`}>Telegram</button></div></div>
+            <div className="space-y-2"><label className="text-[10px] font-bold text-gray-400 uppercase">常用預設規格 (Presets)</label><div className="grid grid-cols-3 gap-2"><button onClick={() => setConfig(prev => ({ ...prev, preset: 'none' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'none' ? 'bg-[#B5838D] text-white border-[#B5838D] shadow-md' : 'bg-white text-gray-500 hover:border-[#B5838D]/30'}`}>自訂比例</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'line' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'line' ? 'bg-[#9CAF9D] text-white border-[#9CAF9D] shadow-md' : 'bg-white text-gray-500 hover:border-[#9CAF9D]/30'}`}>Line (320px)</button><button onClick={() => setConfig(prev => ({ ...prev, preset: 'telegram' }))} className={`py-2 rounded-xl font-bold text-[10px] border transition-all ${config.preset === 'telegram' ? 'bg-[#8DA3B5] text-white border-[#8DA3B5] shadow-md' : 'bg-white text-gray-500 hover:border-[#8DA3B5]/30'}`}>Telegram</button></div></div>
             <div className="space-y-2 pt-1"><div className="flex justify-between items-center"><label className="text-[10px] font-bold text-gray-400 uppercase">留白間距 {Math.round(config.margin * 100)}%</label></div><input type="range" min="0" max="0.3" step="0.01" value={config.margin} onChange={(e) => setConfig(prev => ({ ...prev, margin: parseFloat(e.target.value) }))} className="w-full h-1.5 bg-slate-200 rounded-lg accent-purple-600" /></div>
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-50"><div className="flex items-center gap-3"><Palette size={18} className={config.useStroke ? 'text-purple-600' : 'text-gray-400'} /><span className="text-xs font-bold text-gray-700">物件白色描邊 (Stroke)</span></div><div onClick={() => setConfig(prev => ({ ...prev, useStroke: !prev.useStroke }))} className={`w-9 h-5 rounded-full relative cursor-pointer transition-colors ${config.useStroke ? 'bg-purple-600' : 'bg-gray-200'}`}><div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.useStroke ? 'right-1' : 'left-1'}`} /></div></div>
@@ -579,12 +579,12 @@ const App: React.FC = () => {
               <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">輸出格式</label><select value={config.outputFormat} onChange={(e) => setConfig(prev => ({ ...prev, outputFormat: e.target.value as any }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner"><option value="png">PNG (透明)</option><option value="webp">WebP (輕量)</option></select></div>
               <div className="space-y-1"><label className="text-[10px] font-bold text-gray-400 uppercase">檔名前綴</label><input type="text" value={config.filenamePrefix} onChange={(e) => setConfig(prev => ({ ...prev, filenamePrefix: e.target.value }))} className="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-[10px] outline-none shadow-inner" /></div>
             </div>
-            <button onClick={applyBeautification} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-purple-100 transition-all active:scale-95"><Sparkle size={22} /> 套用美化並預覽結果</button>
-            {zipBlob && <button onClick={() => saveAs(zipBlob, `${config.filenamePrefix}_batch_${Date.now()}.zip`)} className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-green-100 active:scale-95 animate-in zoom-in-95"><FileArchive size={22} /> 下載全部成果 ZIP</button>}
+            <button onClick={applyBeautification} className="w-full bg-[#6D6875] hover:bg-[#5E5966] text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#6D6875]/20 transition-all active:scale-95"><Sparkle size={22} /> 套用美化並預覽結果</button>
+            {zipBlob && <button onClick={() => saveAs(zipBlob, `${config.filenamePrefix}_batch_${Date.now()}.zip`)} className="w-full bg-[#B0C4B1] hover:bg-[#9CAF9D] text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#B0C4B1]/20 active:scale-95 animate-in zoom-in-95"><FileArchive size={22} /> 下載全部成果 ZIP</button>}
           </section>
         </div>
       </main>
-      <footer className="fixed bottom-0 w-full bg-white/60 backdrop-blur-xl border-t py-3 text-center z-40"><p className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em]">StickerMaster AI：專業級批次貼圖製作平台 | 本地運算 隱私無憂</p></footer>
+      <footer className="fixed bottom-0 w-full bg-white/60 backdrop-blur-xl border-t border-[#E6E2DE] py-4 text-center z-40"><p className="text-[9px] text-[#9A8C98] font-bold uppercase tracking-[0.2em] opacity-80">StickerMaster AI Beauty Edition</p></footer>
     </div>
   );
 };
