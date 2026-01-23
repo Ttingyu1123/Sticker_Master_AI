@@ -4,7 +4,7 @@ import {
   Upload, Scissors, Layers, Download, RefreshCw, AlertCircle, Image as ImageIcon,
   CheckCircle2, ChevronRight, Info, FileArchive, LayoutGrid, Maximize2, Crop,
   Settings2, Type, ShieldCheck, Plus, Move, Search, Ruler, Sparkles, Sun, Palette,
-  Wand2, Timer, Smartphone, ZoomIn, ZoomOut, RotateCcw, Undo2, Redo2, MousePointer2,
+  Wand2, Timer, Smartphone, ZoomIn, ZoomOut, RotateCcw, Undo2, Redo2, MousePointer2, Home,
   Trash2, Files, FileImage, Settings, Star, Sparkle, Minimize2, Check, Minus, ExternalLink as LinkIcon
 } from 'lucide-react';
 import { processImage } from './src/services/ai/backgroundRemoval';
@@ -420,9 +420,9 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 mr-2">
+            <div className="flex items-center gap-2 mr-2">
               <a href="https://tingyusdeco.com/" className="text-[10px] font-bold text-[#9A8C98] hover:text-[#B5838D] flex items-center gap-1 transition-colors">
-                <LinkIcon size={12} /> Back Home
+                <Home size={16} /> <span className="hidden sm:inline">Back Home</span>
               </a>
             </div>
             <div className="flex bg-[#F2EFE9] p-1 rounded-2xl border border-[#E6E2DE]">
@@ -589,7 +589,7 @@ const App: React.FC = () => {
           </section>
         </div>
       </main>
-      <footer className="fixed bottom-0 w-full bg-white/60 backdrop-blur-xl border-t border-[#E6E2DE] py-4 text-center z-40"><p className="text-[9px] text-[#9A8C98] font-bold uppercase tracking-[0.2em] opacity-80">StickerMaster AI Beauty Edition</p></footer>
+      <footer className="fixed bottom-0 w-full bg-white/60 backdrop-blur-xl border-t border-[#E6E2DE] py-4 text-center z-40"><p className="text-[9px] text-[#9A8C98] font-bold uppercase tracking-[0.2em] opacity-80">&copy; 2026 TingYu's Deco · TingYu’s AI Art · All rights reserved</p></footer>
     </div>
   );
 };
