@@ -501,10 +501,10 @@ const App: React.FC = () => {
                     </div>
                   ) : (
                     <div className={`w-full h-full flex flex-col items-center justify-center relative ${getHelperBgClass()}`} style={{ transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`, ...(helperBg === 'checkerboard' ? { backgroundImage: 'conic-gradient(#eee 90deg,#fff 90deg 180deg,#eee 180deg 270deg,#fff 270deg)', backgroundSize: '16px 16px' } : {}) }}>
-                      <div className="grid p-10 gap-10 w-full max-h-[90%] overflow-y-auto" style={{ gridTemplateRows: `repeat(${config.rowLines.length - 1}, 1fr)`, gridTemplateColumns: `repeat(${config.colLines.length - 1}, 1fr)` }}>
+                      <div className="grid p-4 gap-2 w-full max-h-[95%] overflow-y-auto" style={{ gridTemplateRows: `repeat(${config.rowLines.length - 1}, 1fr)`, gridTemplateColumns: `repeat(${config.colLines.length - 1}, 1fr)` }}>
                         {processedTiles.map((tile, i) => (
-                          <div key={i} className="flex flex-col items-center gap-2 animate-in zoom-in-90 duration-300">
-                            <div className="aspect-square w-full rounded-2xl overflow-hidden border border-black/5 bg-transparent backdrop-blur-sm shadow-md flex items-center justify-center p-2 group hover:scale-105 transition-transform">
+                          <div key={i} className="flex flex-col items-center gap-1 animate-in zoom-in-90 duration-300">
+                            <div className="aspect-square w-full rounded-xl overflow-hidden border border-black/5 bg-transparent backdrop-blur-sm shadow-sm flex items-center justify-center p-1 group hover:scale-105 transition-transform">
                               <img src={tile.url} className="max-w-full max-h-full object-contain drop-shadow-xl" />
                             </div>
                             <span className="text-[10px] font-black text-indigo-600 bg-white px-2 py-0.5 rounded-full border border-indigo-100 shadow-sm">{tile.width} × {tile.height}</span>
