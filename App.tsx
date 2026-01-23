@@ -5,7 +5,7 @@ import {
   CheckCircle2, ChevronRight, Info, FileArchive, LayoutGrid, Maximize2, Crop,
   Settings2, Type, ShieldCheck, Plus, Move, Search, Ruler, Sparkles, Sun, Palette,
   Wand2, Timer, Smartphone, ZoomIn, ZoomOut, RotateCcw, Undo2, Redo2, MousePointer2,
-  Trash2, Files, FileImage, Settings, Star, Sparkle, Minimize2, Check, Minus
+  Trash2, Files, FileImage, Settings, Star, Sparkle, Minimize2, Check, Minus, ExternalLink as LinkIcon
 } from 'lucide-react';
 import { processImage } from './src/services/ai/backgroundRemoval';
 import JSZip from 'jszip';
@@ -420,6 +420,11 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 mr-2">
+              <a href="https://tingyusdeco.com/" className="text-[10px] font-bold text-[#9A8C98] hover:text-[#B5838D] flex items-center gap-1 transition-colors">
+                <LinkIcon size={12} /> Back Home
+              </a>
+            </div>
             <div className="flex bg-[#F2EFE9] p-1 rounded-2xl border border-[#E6E2DE]">
               <button onClick={undo} disabled={historyIdx <= 0} className="p-2 hover:bg-white rounded-xl disabled:opacity-30 text-[#6D6875] transition-all shadow-sm"><Undo2 size={16} /></button>
               <button onClick={redo} disabled={historyIdx >= history.length - 1} className="p-2 hover:bg-white rounded-xl disabled:opacity-30 text-[#6D6875] transition-all shadow-sm"><Redo2 size={16} /></button>
