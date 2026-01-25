@@ -89,7 +89,7 @@ const AppSwitcher = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative z-50">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-600"
@@ -110,13 +110,15 @@ const AppSwitcher = () => {
                 <a
                   key={app.name}
                   href={app.url}
+                  target={app.url.startsWith('http') ? "_blank" : "_self"}
+                  rel="noopener noreferrer"
                   className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl transition-colors group"
                 >
-                  <div className={`p-2 rounded-lg transition-colors ${app.name.includes('Master') ? 'bg-violet-100 text-violet-600' : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:shadow-sm'}`}>
+                  <div className={`p-2 rounded-lg transition-colors ${app.name.includes('Batch Master') ? 'bg-violet-100 text-violet-600' : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:shadow-sm'}`}>
                     {getIcon(app.icon)}
                   </div>
-                  <span className={`text-xs font-bold ${app.name.includes('Master') ? 'text-violet-600' : 'text-slate-600'}`}>{app.name}</span>
-                  {app.name.includes('Master') && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-500" />}
+                  <span className={`text-xs font-bold ${app.name.includes('Batch Master') ? 'text-violet-600' : 'text-slate-600'}`}>{app.name}</span>
+                  {app.name.includes('Batch Master') && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-500" />}
                 </a>
               ))}
             </div>

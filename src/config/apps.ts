@@ -1,4 +1,4 @@
-
+/// <reference types="vite/client" />
 const isDev = import.meta.env.MODE === 'development';
 
 export const APPS = [
