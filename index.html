@@ -1,39 +1,66 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StickerMaster AI：專業級貼圖批次製作與智慧去背裁切大師</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        violet: { 500: '#8B5CF6', 600: '#7C3AED' },
+                        pink: { 500: '#EC4899', 600: '#DB2777' },
+                        slate: { 50: '#F8FAFC', 800: '#1E293B', 900: '#0F172A' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            background-color: #f8fafc;
-            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-            background-size: 20px 20px;
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <style type="text/tailwindcss">
+        @layer base {
+          body {
+            background-color: #F8FAFC;
+            background-image: 
+              linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: #1E293B;
+          }
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        @keyframes subtle-pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
+        @layer components {
+            .glass-panel {
+                @apply bg-white/60 backdrop-blur-xl border border-white/40 shadow-xl;
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            }
+            .hud-panel {
+                @apply bg-white/80 backdrop-blur-2xl border border-white/50 shadow-2xl rounded-2xl;
+                box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+            }
+            .btn-primary {
+                @apply bg-gradient-to-r from-violet-600 to-pink-500 text-white font-bold shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 hover:scale-[1.02] active:scale-95 transition-all duration-200 border-none;
+            }
+            .glass-card {
+                @apply glass-panel;
+            }
         }
         .drag-active {
-            border-color: #6366f1;
-            background-color: #eef2ff;
-            animation: subtle-pulse 2s infinite ease-in-out;
+            @apply border-violet-500 bg-violet-50/50 animate-pulse;
         }
     </style>
 
-<link rel="stylesheet" href="/index.css">
-<script type="importmap">
+    <link rel="stylesheet" href="/index.css">
+    <script type="importmap">
 {
   "imports": {
     "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
@@ -46,9 +73,11 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="./assets/index-4LHTxQcE.js"></script>
+  <script type="module" crossorigin src="./assets/index-ClG6GBRn.js"></script>
 </head>
+
 <body>
     <div id="root"></div>
 </body>
+
 </html>
